@@ -2,7 +2,7 @@ import dlib
 import cv2
 
 # Dlib의 얼굴 인식 모델 로드
-predictor_path = "shape_predictor_68_face_landmarks.dat"  # 예시 경로, 모델 파일 위치
+predictor_path = "shape_predictor_68_face_landmarks.dat"
 detector = dlib.get_frontal_face_detector()
 predictor = dlib.shape_predictor(predictor_path)
 
