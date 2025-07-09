@@ -64,7 +64,11 @@ right_eye = landmarks.parts()[42:48]  # 오른쪽 눈 (6개 점)
 left_eye_center = np.mean([(point.x, point.y) for point in left_eye], axis=0)
 right_eye_center = np.mean([(point.x, point.y) for point in right_eye], axis=0)
 ```
-- 얼굴 랜드마크 인덱스
+- 얼굴 랜드마크 인덱스 코드 실행
+
+```
+python3 index_test.py
+```
 
 ![image](https://github.com/user-attachments/assets/6f810e1c-21fb-4608-8d5d-9228f09d6988)
 
