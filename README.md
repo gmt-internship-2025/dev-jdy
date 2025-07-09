@@ -54,3 +54,29 @@ Right eye center: [297.33333333 169.83333333]
 ```
 
 ![image](https://github.com/user-attachments/assets/5f01178f-d25f-41f6-9392-6ff5e6005b4c)
+
+```python
+# 왼쪽 눈과 오른쪽 눈의 좌표 추출
+left_eye = landmarks.parts()[36:42]  # 왼쪽 눈 (6개 점)
+right_eye = landmarks.parts()[42:48]  # 오른쪽 눈 (6개 점)
+    
+# 왼쪽 눈의 중심 계산
+left_eye_center = np.mean([(point.x, point.y) for point in left_eye], axis=0)
+right_eye_center = np.mean([(point.x, point.y) for point in right_eye], axis=0)
+```
+- 얼굴 랜드마크 인덱스
+
+![image](https://github.com/user-attachments/assets/6f810e1c-21fb-4608-8d5d-9228f09d6988)
+
+
+- 눈동자(중심) 계산법
+
+```python
+# 왼쪽 눈과 오른쪽 눈의 좌표 추출
+left_eye = landmarks.parts()[36:42]  # 왼쪽 눈 (6개 점)
+right_eye = landmarks.parts()[42:48]  # 오른쪽 눈 (6개 점)
+    
+# 왼쪽 눈의 중심 계산
+left_eye_center = np.mean([(point.x, point.y) for point in left_eye], axis=0)
+right_eye_center = np.mean([(point.x, point.y) for point in right_eye], axis=0)
+```
