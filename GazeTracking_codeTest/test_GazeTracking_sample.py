@@ -1,7 +1,6 @@
 import sys
 import cv2
 
-# 상대경로로 상위 폴더의 GazeTracking/gaze_tracking 모듈을 import 가능하게 설정
 sys.path.append("../GazeTracking")
 
 from gaze_tracking import GazeTracking
