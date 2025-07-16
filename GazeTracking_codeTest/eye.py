@@ -124,4 +124,9 @@ class Eye(object):
             calibration.evaluate(self.frame, side)
 
         threshold = calibration.threshold(side)
+        
+        # 디버깅 출력: 현재 Calibration 중이면 threshold 출력
+        if not calibration.is_complete():
+            print(f"[CALIBRATING] Side: {'Left' if side == 0 else 'Right'}, Threshold: {threshold}")
+        
         self.pupil = Pupil(self.frame, threshold)
