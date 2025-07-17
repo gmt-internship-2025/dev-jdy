@@ -1,4 +1,3 @@
-# test_gaze_calibration.py
 import cv2
 import time
 import numpy as np
@@ -35,6 +34,31 @@ def main():
     webcam.set(cv2.CAP_PROP_FRAME_WIDTH, WINDOW_WIDTH)
     webcam.set(cv2.CAP_PROP_FRAME_HEIGHT, WINDOW_HEIGHT)
 
+    if not webcam.isOpened():
+        print("[ERROR] 웹캠을 열 수 없습니다.")
+        return
+
+    # 5초 카운트다운 화면 출력
+    for countdown in range(5, 0, -1):  # 5,4,3,2,1
+        ret, frame = webcam.read()
+        if not ret or frame is None:
+            continue
+        # 중앙에 카운트 숫자 표시
+        text = str(countdown)
+        (text_width, text_height), _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 5, 10)
+        # 중앙 좌표 계산
+        x = (WINDOW_WIDTH - text_width) // 2
+        y = (WINDOW_HEIGHT + text_height) // 2
+        cv2.putText(frame, text, (x, y),
+                    cv2.FONT_HERSHEY_SIMPLEX, 5, (0, 0, 255), 10, cv2.LINE_AA)
+
+        cv2.imshow("Calibration", frame)
+        if cv2.waitKey(1000) == 27:  # 1초 기다림, ESC로 중단 가능
+            webcam.release()
+            cv2.destroyAllWindows()
+            return
+
+    # 카운트다운 끝난 후 본격 보정 시작
     screen_points = generate_grid_points()  # 9개
     pupil_points = []
 
@@ -45,7 +69,10 @@ def main():
         start_time = time.time()
 
         while time.time() - start_time < DISPLAY_TIME:
-            _, frame = webcam.read()
+            ret, frame = webcam.read()
+            if not ret or frame is None:
+                continue
+
             gaze.refresh(frame)
 
             display_frame = frame.copy()
