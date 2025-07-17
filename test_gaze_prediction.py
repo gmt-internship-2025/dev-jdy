@@ -1,5 +1,6 @@
 import cv2
 import time
+import numpy as np
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "GazeTracking")))
@@ -7,7 +8,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "GazeTra
 from gaze_tracking import GazeTracking
 from calibration_mapping import GazeMapper
 
-WINDOW_WIDTH, WINDOW_HEIGHT = 640, 480
+WINDOW_WIDTH, WINDOW_HEIGHT = 1280, 720
 
 def main():
     gaze = GazeTracking()
@@ -37,25 +38,30 @@ def main():
 
         gaze.refresh(frame)
 
-        coords = gaze.pupil_left_coords()
-        if coords and mapper.is_trained:
+        # [수정] 양안 평균 계산
+        left = gaze.pupil_left_coords()
+        right = gaze.pupil_right_coords()
+        if left is not None and right is not None:
+            coords = np.mean([left, right], axis=0)
+        elif left is not None:
+            coords = left
+        elif right is not None:
+            coords = right
+        else:
+            coords = None
+
+        if coords is not None and mapper.is_trained:
             pred_x, pred_y = mapper.predict(coords)
 
-            # 디버깅 출력
             print(f"[DEBUG] pred_x={pred_x}, pred_y={pred_y}")
 
-            # 정수형 변환
             px = int(pred_x)
             py = int(pred_y)
 
-            # 화면 범위를 벗어나지 않도록 클램핑
             px = max(0, min(WINDOW_WIDTH - 1, px))
             py = max(0, min(WINDOW_HEIGHT - 1, py))
 
-            # 예측 위치에 빨간 점 표시
             cv2.circle(frame, (px, py), 10, (0, 0, 255), -1)
-
-            # 예측 좌표 텍스트 표시
             cv2.putText(frame, f"Gaze: ({px}, {py})", (10, 30),
                         cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
