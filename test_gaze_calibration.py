@@ -13,7 +13,7 @@ from calibration_mapping import GazeMapper
 WINDOW_WIDTH, WINDOW_HEIGHT = 1280, 720
 GRID_ROWS, GRID_COLS = 5, 5
 DOT_RADIUS = 10
-DISPLAY_TIME = 2  # 각 점 응시 시간 (초)
+DISPLAY_TIME = 3  # 각 점 응시 시간 (초)
 
 # 3x3 점 생성
 def generate_grid_points():
