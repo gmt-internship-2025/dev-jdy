@@ -81,10 +81,11 @@ class GazeTracking(object):
         horizontal direction of the gaze. The extreme right is 0.0,
         the center is 0.5 and the extreme left is 1.0
         """
+        
+        ## [수정1] 실제 눈의 너비 기준으로 정규화: 실제 눈 width로 나누기 (눈마다 정규화 다르게) ==============
         if not self.pupils_located:
             return None
             
-        ## [수정1] 실제 눈의 너비 기준으로 정규화: 실제 눈 width로 나누기 ================================
         eye_width_left = self.eye_left.landmark_points[:, 0].ptp()
         eye_width_right = self.eye_right.landmark_points[:, 0].ptp()
 
@@ -108,20 +109,23 @@ class GazeTracking(object):
             pupil_right = self.eye_right.pupil.y / (self.eye_right.center[1] * 2 - 10)
             return (pupil_left + pupil_right) / 2
 
+    # [수정2] right 시선 방향 판단 기준 개선
     def is_right(self):
         """Returns true if the user is looking to the right"""
-        if self.pupils_located:
-            return self.horizontal_ratio() <= 0.35
+        hr = self.horizontal_ratio()
+        return hr is not None and hr < 0.45
 
+    # [수정2] left 시선 방향 판단 기준 개선
     def is_left(self):
         """Returns true if the user is looking to the left"""
-        if self.pupils_located:
-            return self.horizontal_ratio() >= 0.65
+        hr = self.horizontal_ratio()
+        return hr is not None and hr > 0.55
 
+    # [수정2] is_center 시선 방향 판단 기준 개선
     def is_center(self):
         """Returns true if the user is looking to the center"""
-        if self.pupils_located:
-            return self.is_right() is not True and self.is_left() is not True
+        hr = self.horizontal_ratio()
+        return hr is not None and 0.45 <= hr <= 0.55
 
     def is_blinking(self):
         """Returns true if the user closes his eyes"""
