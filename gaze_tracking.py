@@ -81,10 +81,22 @@ class GazeTracking(object):
         horizontal direction of the gaze. The extreme right is 0.0,
         the center is 0.5 and the extreme left is 1.0
         """
-        if self.pupils_located:
-            pupil_left = self.eye_left.pupil.x / (self.eye_left.center[0] * 2 - 10)
-            pupil_right = self.eye_right.pupil.x / (self.eye_right.center[0] * 2 - 10)
-            return (pupil_left + pupil_right) / 2
+        if not self.pupils_located:
+            return None
+            
+        ## [수정1] 실제 눈의 너비 기준으로 정규화: 실제 눈 width로 나누기 ================================
+        eye_width_left = self.eye_left.landmark_points[:, 0].ptp()
+        eye_width_right = self.eye_right.landmark_points[:, 0].ptp()
+
+        pupil_left = (self.eye_left.pupil.x - self.eye_left.center[0]) / (eye_width_left / 2)
+        pupil_right = (self.eye_right.pupil.x - self.eye_right.center[0]) / (eye_width_right / 2)
+
+        # Normalize to [0, 1]
+        pupil_left = (pupil_left + 1) / 2
+        pupil_right = (pupil_right + 1) / 2
+
+        return (pupil_left + pupil_right) / 2
+        # =========================================================================================
 
     def vertical_ratio(self):
         """Returns a number between 0.0 and 1.0 that indicates the
