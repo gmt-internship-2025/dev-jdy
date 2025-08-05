@@ -33,7 +33,9 @@ class Pupil(object):
         # [수정1] 어두운 눈 이미지 대비 보정
         new_frame = cv2.equalizeHist(new_frame)  
         new_frame = cv2.erode(new_frame, kernel, iterations=3)
-        new_frame = cv2.threshold(new_frame, threshold, 255, cv2.THRESH_BINARY)[1]
+        
+        # [수정2] 눈동자를 더 잘 검출하도록 흑백 반전: THRESH_BINARY -> THRESH_BINARY_INV
+        new_frame = cv2.threshold(new_frame, threshold, 255, cv2.THRESH_BINARY_INV)[1]  
 
         return new_frame
 
