@@ -48,8 +48,9 @@ class Pupil(object):
         """
         self.iris_frame = self.image_processing(eye_frame, self.threshold)
 
-        contours, _ = cv2.findContours(self.iris_frame, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)[-2:]
-        contours = sorted(contours, key=cv2.contourArea)
+        # [수정3] 노이즈 제거 및 가장 적절한 눈동자만 선택
+        contours, _ = cv2.findContours(self.iris_frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) 
+        contours = sorted(contours, key=cv2.contourArea, reverse=True)
 
         try:
             moments = cv2.moments(contours[-2])
