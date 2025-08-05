@@ -48,13 +48,16 @@ class Pupil(object):
         """
         self.iris_frame = self.image_processing(eye_frame, self.threshold)
 
-        # [수정3] 노이즈 제거 및 가장 적절한 눈동자만 선택
+        # [수정3] 노이즈 제거 및 가장 적절한 눈동자만 선택: cv2.RETR_TREE -> cv2.RETR_EXTERNAL
         contours, _ = cv2.findContours(self.iris_frame, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE) 
         contours = sorted(contours, key=cv2.contourArea, reverse=True)
 
-        try:
-            moments = cv2.moments(contours[-2])
-            self.x = int(moments['m10'] / moments['m00'])
-            self.y = int(moments['m01'] / moments['m00'])
-        except (IndexError, ZeroDivisionError):
-            pass
+        # [수정4] 너무 작거나 큰 contour 제거 (오탐 방지): 30 < area < 2000 조건 추가
+        for contour in contours:
+            area = cv2.contourArea(contour)
+            if 30 < area < 2000:
+                moments = cv2.moments(contour)
+                if moments['m00'] != 0:
+                    self.x = int(moments['m10'] / moments['m00'])
+                    self.y = int(moments['m01'] / moments['m00'])
+                    return
