@@ -61,3 +61,8 @@ class Pupil(object):
                     self.x = int(moments['m10'] / moments['m00'])
                     self.y = int(moments['m01'] / moments['m00'])
                     return
+                    
+        # [수정5] 안정성 확보: 동공 검출 실패 시 중앙 fallback 좌표 설정
+        height, width = eye_frame.shape[:2]
+        self.x = width // 2
+        self.y = height // 2
