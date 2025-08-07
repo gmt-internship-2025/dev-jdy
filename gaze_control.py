@@ -1,4 +1,4 @@
-# gaze_control2.py
+# gaze_control3.py
 
 import cv2
 import pyautogui
@@ -59,6 +59,9 @@ while True:
     if left_pupil and right_pupil:
         cv2.putText(annotated, f"Pupil: {pupil_avg}", (20, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
         cv2.putText(annotated, f"Pred: {pred}", (20, 90), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 100, 0), 2)
+        
+        # [수정4] 시선 위치 시각화 기능
+        cv2.circle(annotated, (int(pred[0]), int(pred[1])), 10, (255, 0, 0), 2)  # 파란색 원
 
     cv2.imshow("Gaze Mouse Control", annotated)
 
