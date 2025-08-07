@@ -1,4 +1,4 @@
-# gaze_mouse_control.py
+# gaze_control1.py
 
 import cv2
 import pyautogui
@@ -11,6 +11,20 @@ SCREEN_WIDTH, SCREEN_HEIGHT = pyautogui.size()
 # 객체 초기화
 gaze = GazeTracking()
 calibrator = Calibrator()
+
+# [수정2] 데이터 로드
+import pickle
+import os
+if os.path.exists("calibration_data.pkl"):
+    with open("calibration_data.pkl", "rb") as f:
+        data = pickle.load(f)
+        calibrator.X = data["X"]
+        calibrator.Y_x = data["Y_x"]
+        calibrator.Y_y = data["Y_y"]
+        calibrator.fitted = True
+        print("학습 데이터 불러오기 완료")
+else:
+    print("[!] calibration_data.pkl 파일이 없습니다. 먼저 calibration_ui1.py를 실행하세요.")
 
 # 웹캠 시작
 webcam = cv2.VideoCapture(0)
