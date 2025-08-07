@@ -1,4 +1,5 @@
-# gaze_control6.py
+# gaze_control7.py
+# 예측 시 pupil 증폭 적용
 
 import cv2
 import pyautogui
@@ -9,11 +10,11 @@ from gaze_tracking2 import GazeTracking
 from my_calibrator import Calibrator
 
 # 화면 해상도
-SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720
+SCREEN_WIDTH, SCREEN_HEIGHT = 960, 540
 
-# 웹캠 해상도 (calibration_ui.py와 반드시 일치해야 함)
-CAM_WIDTH = 1080
-CAM_HEIGHT = 720
+# 웹캠 해상도
+CAM_WIDTH = 960
+CAM_HEIGHT = 540
 
 # 객체 초기화
 gaze = GazeTracking()
@@ -83,7 +84,15 @@ while True:
             pupil_avg[0] / CAM_WIDTH,
             pupil_avg[1] / CAM_HEIGHT
         )
-        pred_norm = calibrator.predict(pupil_norm)
+        
+        # 정규화된 pupil 좌표 확대 (중앙 기준 ±2.0 스케일)
+        pupil_amp = (
+            (pupil_norm[0] - 0.5) * 100,
+            (pupil_norm[1] - 0.5) * 100
+        )
+        
+        # 예측 수행
+        pred_norm = calibrator.predict(pupil_amp)
         
         # 예측값 튀는 것 방지
         pred_norm = np.clip(pred_norm, 0, 1)
@@ -98,9 +107,9 @@ while True:
         )
 
         # [수정] 디버깅 출력
-        # print(f"→ pupil input: {pupil_input}")
-        print(f"→ raw left: {left_pupil}, raw right: {right_pupil}")
+        print(f"← raw left: {left_pupil}, raw right: {right_pupil}")
         print(f"→ pupil norm input: {pupil_norm}")
+        print(f"→ pupil amp input: {pupil_amp}")
         print(f"→ pred norm: {pred_norm}")
         print(f"→ pred screen: {pred_screen}\n")
 
