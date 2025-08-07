@@ -1,4 +1,4 @@
-# calibration_ui.py
+# calibration_ui1.py
 
 import cv2
 import time
@@ -67,3 +67,12 @@ while True:
 webcam.release()
 cv2.destroyAllWindows()
 
+# [수정1] 저장 추가
+import pickle
+with open("calibration_data.pkl", "wb") as f:
+    pickle.dump({
+        "X": calibrator.X,
+        "Y_x": calibrator.Y_x,
+        "Y_y": calibrator.Y_y
+    }, f)
+print("학습 데이터 calibration_data.pkl 저장 완료")
