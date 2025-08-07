@@ -1,4 +1,4 @@
-# gaze_control1.py
+# gaze_control2.py
 
 import cv2
 import pyautogui
@@ -21,7 +21,12 @@ if os.path.exists("calibration_data.pkl"):
         calibrator.X = data["X"]
         calibrator.Y_x = data["Y_x"]
         calibrator.Y_y = data["Y_y"]
+        
+        # [수정3] reg_x, reg_y 모델을 수동으로 학습(fit)
+        calibrator.reg_x.fit(calibrator.X, calibrator.Y_x)
+        calibrator.reg_y.fit(calibrator.X, calibrator.Y_y)
         calibrator.fitted = True
+        
         print("학습 데이터 불러오기 완료")
 else:
     print("[!] calibration_data.pkl 파일이 없습니다. 먼저 calibration_ui1.py를 실행하세요.")
