@@ -1,4 +1,4 @@
-## calibration_ui3.py
+## calibration_ui4.py
 
 import cv2
 import time
@@ -33,6 +33,10 @@ while True:
     start_time = time.time()
     while time.time() - start_time < POINT_DISPLAY_TIME:
         _, frame = webcam.read()
+        
+        # [수정4] 좌우 반전 추가
+        frame = cv2.flip(frame, 1)
+        
         gaze.refresh(frame)
 
         if gaze.pupils_located:
@@ -55,15 +59,28 @@ while True:
         pupil_mean = np.mean(pupil_array, axis=0)
 
         # target 좌표 정규화
+        # target_norm = (
+        #     target[0] / CAM_WIDTH,
+        #     target[1] / CAM_HEIGHT
+        # )
+
+        # pupil 좌표 정규화 (입력도 0~1 스케일로 변경)
+        pupil_norm = (
+            pupil_mean[0] / CAM_WIDTH,
+            pupil_mean[1] / CAM_HEIGHT
+        )
+        
+        # target 좌표 정규화
         target_norm = (
             target[0] / CAM_WIDTH,
             target[1] / CAM_HEIGHT
         )
 
-        print(f"→ pupil raw: {pupil_mean}")
+        print(f"→ pupil norm: {pupil_norm}")
         print(f"→ target norm: {target_norm}")
 
-        calibrator.add(pupil_mean, target_norm)
+        # calibrator.add(pupil_mean, target_norm)
+        calibrator.add(pupil_norm, target_norm)
         print(f"[+] Collected {len(collected_pupil)} samples at {target}")
 
     calibrator.movePoint()
