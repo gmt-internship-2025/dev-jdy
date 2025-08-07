@@ -1,17 +1,18 @@
-# gaze_control5.py
+# gaze_control6.py
 
 import cv2
 import pyautogui
 import pickle
 import os
+import numpy as np
 from gaze_tracking2 import GazeTracking
 from my_calibrator import Calibrator
 
 # 화면 해상도
-SCREEN_WIDTH, SCREEN_HEIGHT = pyautogui.size()
+SCREEN_WIDTH, SCREEN_HEIGHT = 1280, 720
 
 # 웹캠 해상도 (calibration_ui.py와 반드시 일치해야 함)
-CAM_WIDTH = 1280
+CAM_WIDTH = 1080
 CAM_HEIGHT = 720
 
 # 객체 초기화
@@ -44,6 +45,10 @@ webcam.set(cv2.CAP_PROP_FRAME_HEIGHT, CAM_HEIGHT)
 
 while True:
     _, frame = webcam.read()
+    
+    # [수정6] 좌우 반전 추가
+    frame = cv2.flip(frame, 1)
+    
     gaze.refresh(frame)
 
     # 동공 좌표
@@ -67,8 +72,24 @@ while True:
         # pred_norm = calibrator.predict(pupil_norm)
 
         # [수정] 학습 때 raw 좌표 (600~630)이었으니, 그대로 예측에도 넣기
-        pupil_input = pupil_avg
-        pred_norm = calibrator.predict(pupil_input)
+        # pupil_input = pupil_avg
+        # pred_norm = calibrator.predict(pupil_input)
+        
+        # [수정] 예측값 보정
+        # pred_norm = np.clip(pred_norm, 0, 1)
+        
+        # 입력도 0~1 스케일로 정규화해서 예측
+        pupil_norm = (
+            pupil_avg[0] / CAM_WIDTH,
+            pupil_avg[1] / CAM_HEIGHT
+        )
+        pred_norm = calibrator.predict(pupil_norm)
+        
+        # 예측값 튀는 것 방지
+        pred_norm = np.clip(pred_norm, 0, 1)
+        
+        if not (0 <= pred_norm[0] <= 1 and 0 <= pred_norm[1] <= 1):
+            print("예측값이 정규화 범위를 벗어났습니다:", pred_norm)
         
         # [수정] 화면 해상도로 복원
         pred_screen = (
@@ -77,7 +98,9 @@ while True:
         )
 
         # [수정] 디버깅 출력
-        print(f"→ pupil input: {pupil_input}")
+        # print(f"→ pupil input: {pupil_input}")
+        print(f"→ raw left: {left_pupil}, raw right: {right_pupil}")
+        print(f"→ pupil norm input: {pupil_norm}")
         print(f"→ pred norm: {pred_norm}")
         print(f"→ pred screen: {pred_screen}\n")
 
