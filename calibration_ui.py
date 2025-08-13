@@ -1,5 +1,4 @@
-## calibration_ui5.py
-# 회귀 모델의 예측 민감도 키우기
+# calibration_ui6.py
 
 import cv2
 import time
@@ -23,6 +22,10 @@ webcam = cv2.VideoCapture(0)
 webcam.set(cv2.CAP_PROP_FRAME_WIDTH, CAM_WIDTH)
 webcam.set(cv2.CAP_PROP_FRAME_HEIGHT, CAM_HEIGHT)
 
+# [추가] 초기 2초 대기 (창 조절 시간 확보)
+# print("Starting in 2 seconds... Adjust the window if needed.")
+# time.sleep(5)
+
 while True:
     # 현재 캘리브레이션 타겟 위치 (픽셀 좌표)
     target = calibrator.getCurrentPoint(CAM_WIDTH, CAM_HEIGHT)
@@ -35,7 +38,7 @@ while True:
     while time.time() - start_time < POINT_DISPLAY_TIME:
         _, frame = webcam.read()
         
-        # [수정4] 좌우 반전 추가
+        # 좌우 반전
         frame = cv2.flip(frame, 1)
         
         gaze.refresh(frame)
@@ -59,16 +62,16 @@ while True:
         pupil_array = np.array(collected_pupil)
         pupil_mean = np.mean(pupil_array, axis=0)
 
-        # pupil 좌표 정규화 (입력도 0~1 스케일로 변경)
+        # pupil 좌표 정규화 (0~1 스케일)
         pupil_norm = (
             pupil_mean[0] / CAM_WIDTH,
             pupil_mean[1] / CAM_HEIGHT
         )
         
-        # [수정5] 정규화한 값을 확대 (민감도 증가)
+        # 민감도 증가
         pupil_amp = (
-            (pupil_norm[0] - 0.5) * 100,   # 중앙 0.0, 좌우 -50.0 ~ +50.0
-            (pupil_norm[1] - 0.5) * 100
+            (pupil_norm[0] - 0.5) * 15,   # 중앙 기준 ±2.5
+            (pupil_norm[1] - 0.5) * 15
         )
         
         # target 좌표 정규화
@@ -81,8 +84,6 @@ while True:
         print(f"→ pupil amp: {pupil_amp}")
         print(f"→ target norm: {target_norm}")
 
-        # calibrator.add(pupil_mean, target_norm)
-        # calibrator.add(pupil_norm, target_norm)
         calibrator.add(pupil_amp, target_norm)
         print(f"[+] Collected {len(collected_pupil)} samples at {target}")
 
@@ -96,12 +97,12 @@ webcam.release()
 cv2.destroyAllWindows()
 
 # 학습 데이터 저장
-with open("calibration_data.pkl", "wb") as f:
+with open("calibration_data_amp15.pkl", "wb") as f:
     pickle.dump({
         "X": calibrator.X,
         "Y_x": calibrator.Y_x,
         "Y_y": calibrator.Y_y
     }, f)
 
-print("학습 데이터 calibration_data.pkl 저장 완료")
+print("학습 데이터 calibration_data_amp15.pkl 저장 완료")
 
