@@ -56,3 +56,5 @@ fps_avg       151.0    2.81    2.93    2.96    0.58    2.96
 ```
 
 </aside>
+
+<img width="526" height="390" alt="cpu" src="https://github.com/user-attachments/assets/908cedc5-8aa9-46b0-89d0-f2decaa3f92e" />
