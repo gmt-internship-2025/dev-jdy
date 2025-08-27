@@ -1,0 +1,100 @@
+<!-- templates/index2.html -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gaze Web Click</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #222; /* 바깥 배경색 */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    #camera-area {
+      position: relative; 
+      width: 1840px;
+      height: 960px;
+      background-color: #eee; /* 카메라 대응 영역 */
+      overflow: hidden;
+    }
+    .target {
+      position: absolute;
+      width: 250px;   /* 버튼 너비 확대 */
+      height: 120px;  /* 버튼 높이 확대 */
+      background-color: lightblue;
+      border: 3px solid blue;
+      text-align: center;
+      line-height: 120px; /* 높이에 맞게 중앙정렬 */
+      font-size: 28px;    /* 글씨 크기 확대 */
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 10px; /* 모서리 둥글게 */
+    }
+    #indicator {
+      position: absolute;
+      width: 30px;  /* 포인터 크기 확대 */
+      height: 30px;
+      background-color: red;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="camera-area">
+    <div class="target" id="btn1" style="top: 50px; left: 50px;">Button 1</div>
+    <div class="target" id="btn2" style="top: 50px; right: 50px;">Button 2</div>
+    <div class="target" id="btn3" style="bottom: 50px; left: 50px;">Button 3</div>
+    <div class="target" id="btn4" style="bottom: 50px; right: 50px;">Button 4</div>
+    <div id="indicator"></div>
+  </div>
+
+  <script>
+    let lastStayTime = {};
+    const stayDuration = 1500;
+
+    document.querySelectorAll('.target').forEach(btn => {
+      lastStayTime[btn.id] = Date.now();
+    });
+
+    function checkGaze() {
+      fetch("/api/gaze")
+        .then(res => res.json())
+        .then(pos => {
+          const gazeX = pos.x;
+          const gazeY = pos.y;
+
+          // gazeX, gazeY가 960×540 영역 기준으로 들어온다고 가정
+          const indicator = document.getElementById("indicator");
+          indicator.style.left = (gazeX - 7) + "px";
+          indicator.style.top = (gazeY - 7) + "px";
+
+          document.querySelectorAll('.target').forEach(btn => {
+            const rect = btn.getBoundingClientRect();
+            const areaRect = document.getElementById("camera-area").getBoundingClientRect();
+
+            // 카메라 영역 내에서의 상대 좌표로 변환
+            const relX = gazeX + areaRect.left;
+            const relY = gazeY + areaRect.top;
+
+            if (relX >= rect.left && relX <= rect.right &&
+                relY >= rect.top && relY <= rect.bottom) {
+              if (Date.now() - lastStayTime[btn.id] > stayDuration) {
+                window.location.href = `/${btn.id.replace("btn","button")}`;
+              }
+            } else {
+              lastStayTime[btn.id] = Date.now();
+            }
+          });
+        });
+
+      requestAnimationFrame(checkGaze);
+    }
+
+    checkGaze();
+  </script>
+</body>
+</html>
+
